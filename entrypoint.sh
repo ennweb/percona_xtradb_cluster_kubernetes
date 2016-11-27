@@ -37,13 +37,11 @@ CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so';
 CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so';
 CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so';
 EOSQL
-
-    sed -i -e "s/\(wsrep_sst_auth\=\).*/\1$WSREP_SST_USER:$WSREP_SST_PASSWORD/" /etc/mysql/conf.d/cluster.cnf
     set -- "$@" --init-file="$tempSqlFile"
   fi
 fi
 
-# get info from kuberctl
+# get info from kubectl
 
 TIME=$[ ( $RANDOM  % 10 ) + 1 ]
 echo "sleep ${TIME}"
@@ -69,6 +67,7 @@ if [ -n "$WSREP_NODE_ADDRESS" ]; then
     sed -i -e "s/\(wsrep_node_address\=\).*$/\1$WSREP_NODE_ADDRESS/" /etc/mysql/conf.d/cluster.cnf
 fi
 
+sed -i -e "s/\(wsrep_sst_auth\=\).*/\1$WSREP_SST_USER:$WSREP_SST_PASSWORD/" /etc/mysql/conf.d/cluster.cnf
 sed -i -e "s/^server\-id\s*\=\s.*$/server-id = ${SERVER_ID}/" /etc/mysql/my.cnf
 sed -i -e "s|\(wsrep_cluster_address\=\).*|\1${WSREP_CLUSTER_ADDRESS}|" /etc/mysql/conf.d/cluster.cnf
 sed -i -e "s/\(wsrep_node_name\=\).*/\1${HOSTNAME}/" /etc/mysql/conf.d/cluster.cnf
