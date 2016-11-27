@@ -102,5 +102,7 @@ cat /etc/mysql/conf.d/cluster.cnf
 echo "sever-id: $SERVER_ID"
 echo "wsrep_cluster_address: $WSREP_CLUSTER_ADDRESS"
 
+/kubectl delete configmap percona-cluster
+
 # finally, start mysql
 exec "$@"
