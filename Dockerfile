@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN echo "deb http://repo.percona.com/apt xenial main" > /etc/apt/sources.list.d/percona.list
 RUN apt-key adv --keyserver keys.gnupg.net --recv-keys 9334A25F8507EFA5 \
     && apt-get update \
-    && apt-get install -y --no-install-recommends percona-xtradb-cluster-57 curl ca-certificates \
+    && apt-get install -y --no-install-recommends percona-xtradb-cluster-57 curl ca-certificates netcat \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql
 
