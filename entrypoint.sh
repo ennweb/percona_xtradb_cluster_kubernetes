@@ -61,7 +61,7 @@ else
     SERVER_ID=${RANDOM}
     SERVICE=`/kubectl describe service/pxc-cluster | grep 4567 | grep -i endpoints | awk '{print $2}'`
     WSREP_CLUSTER_ADDRESS="gcomm://"
-    WSREP_CLUSTER_ADDRESS="${WSREP_CLUSTER_ADDRESS}${SERVICE}"
+    WSREP_CLUSTER_ADDRESS="${WSREP_CLUSTER_ADDRESS}${SERVICE//:4567/}"
 fi
 
 WSREP_NODE_ADDRESS=`ip addr show | grep -E '^[ ]*inet' | grep -m1 global | awk '{ print $2 }' | sed -e 's/\/.*//'`
