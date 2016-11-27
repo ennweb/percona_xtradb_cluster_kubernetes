@@ -38,7 +38,7 @@ CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so';
 CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so';
 EOSQL
 
-    sed -i -e "s/\(wsrep_sst_auth\=\).*/\1 $WSREP_SST_USER:$WSREP_SST_PASSWORD/" /etc/mysql/conf.d/cluster.cnf
+    sed -i -e "s/\(wsrep_sst_auth\=\).*/\1$WSREP_SST_USER:$WSREP_SST_PASSWORD/" /etc/mysql/conf.d/cluster.cnf
     set -- "$@" --init-file="$tempSqlFile"
   fi
 fi
