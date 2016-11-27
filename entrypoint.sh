@@ -17,10 +17,10 @@ if [ "$1" = 'mysqld' ]; then
   # set with initial SQL script before proceeding to build SQL script
   if [ ! -d "$DATADIR/mysql" ]; then
 
-    echo 'Running mysql_install_db ...'
-    mysql_install_db --datadir="/var/lib/mysql"
+    echo 'Running mysqld --initialize...'
+    mysqld --initialize
     chown -R mysql:mysql /var/lib/mysql
-    echo 'Finished mysql_install_db'
+    echo 'Finished mysqld --initialize'
 
     # this script will be run once when MySQL first starts to set up
     # prior to creating system tables and will ensure proper user permissions
