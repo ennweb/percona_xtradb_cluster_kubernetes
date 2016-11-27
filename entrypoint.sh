@@ -41,26 +41,51 @@ EOSQL
   fi
 fi
 
-# get info from kubectl
+function cluster_members() {
+  SERVICE=`/kubectl describe service/pxc-cluster | grep 4567 | grep -i endpoints | awk '{print $2}'`
+  SERVICE="${SERVICE//:4567/}"
+  CLUSTER=$(echo $SERVICE | sed 's/,/\n/g')
 
-TIME=$[ ( $RANDOM  % 10 ) + 1 ]
-echo "sleep ${TIME}"
-sleep $TIME
-/kubectl create configmap percona-cluster --from-literal=wsrepclusterbootstraped=0
-exitcode=$?
-if [ $exitcode == 0 ]; then
-    echo "Created"
+  CLUSTER_MEMBERS=
+  LIST=
+  for server in $CLUSTER; do
+    echo -n "-----> Testing potential db host $server..."
+    if echo "" | nc $server 3306 | grep mysql_native_password > /dev/null; then
+      echo "OK"
+      LIST+="$server,"
+    else
+      echo "NOPE"
+    fi
+  done
+  export CLUSTER_MEMBERS=$(echo $LIST | sed 's/,$//')
+}
+
+if [[ -z $CLUSTER_MEMBERS ]]; then
+  cluster_members
+fi
+
+if [[ -z $CLUSTER_MEMBERS ]]; then
+  /kubectl create configmap percona-cluster --from-literal=wsrepclusterbootstraped=0
+  exitcode=$?
+  
+  if [ $exitcode == 0 ]; then
     SERVER_ID=1
     WSREP_CLUSTER_ADDRESS="gcomm://"
-    /kubectl get configmap -o json | sed "s/\(\"wsrepclusterbootstraped\"\).*$/\1: \"1\"/" | /kubectl replace -f -
     set -- "$@" --wsrep-new-cluster
-else
-    echo "Failed"
-    SERVER_ID=${RANDOM}
-    SERVICE=`/kubectl describe service/pxc-cluster | grep 4567 | grep -i endpoints | awk '{print $2}'`
-    WSREP_CLUSTER_ADDRESS="gcomm://"
-    WSREP_CLUSTER_ADDRESS="${WSREP_CLUSTER_ADDRESS}${SERVICE//:4567/}"
+  else
+    echo "-----> Waiting for primary database."
+    until [[ ! -z $CLUSTER_MEMBERS ]]; do
+      cluster_members
+      echo -n "."
+      sleep 10
+    done
+    echo "-----> primary ready.  Starting."
+    sleep 5
+  fi
 fi
+
+SERVER_ID=${RANDOM}
+WSREP_CLUSTER_ADDRESS="gcomm://${CLUSTER_MEMBERS}"
 
 WSREP_NODE_ADDRESS=`ip addr show | grep -E '^[ ]*inet' | grep -m1 global | awk '{ print $2 }' | sed -e 's/\/.*//'`
 if [ -n "$WSREP_NODE_ADDRESS" ]; then
