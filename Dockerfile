@@ -3,7 +3,7 @@ FROM ubuntu:xenial
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN echo "deb http://repo.percona.com/apt xenial main" > /etc/apt/sources.list.d/percona.list
-RUN apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A \
+RUN apt-key adv --keyserver keys.gnupg.net --recv-keys 9334A25F8507EFA5 \
     && apt-get update \
     && apt-get install -y --no-install-recommends percona-xtradb-cluster-57 curl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
